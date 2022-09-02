@@ -9,41 +9,44 @@
 // receiver receives funds at the end after learning the password
 
 'reach 0.1';
+'use strict';
 
 // the amount deployer transfers is represented as a unsigned integer named amount
 // the password is represented as a unsigned integer named password
 // receiver has a function named obtainPassword that returns the password once the receiver knows it
+export const main = Reach.App(
+  {},
+  // participant interact interface is defined on the backend
+  [Participant('Deployer', { amount: UInt, password: UInt }),
+  Participant('Receiver', { obtainPassword: Fun([], UInt )}) ],
+  (Deployer, Receiver) => {
+    Deployer.only(() => {
+      const _password = interact.password;
+      // deployer declassifies the amount and the passwordDigested for publication
+      const [ amount, passwordDigested ] = declassify([ interact.amount, digest(_password) ]); });
+    // deployer publishes a digest of the password and amount and pays amount
+    // publish puts us into a consensus step
+    Deployer.publish(passwordDigested, amount)
+      .pay(amount);
+    // commit ends the consensus step and encodes information on the blockchain
+    commit();
 
-[Participant('Deployer', { amount: UInt, passwordDigested: UInt }),
-Participant('Receiver', { obtainPassword: Fun([], UInt )}) ],
+    // receiver may not know what the deployer's password is 
+    unknowable(Receiver, Deployer(_password));
 
-// deployer publishes a digest of the password and amount and pays amount
-// receiver publishes the password
-// blockchain consensus checks password is correct
-// receiver is paid
-
-// receiver cannot know what the deployer's password is
-unknowable(Receiver, Deployer(_password));
-
-// publish puts us into a consensus step
-Deployer.publish(passwordDigested, amount)
-        // deployer pays the amount
-        .pay(amount);
-        // deployer commits this information to the blockchain, ends current concensus step
-commit();
-
-// the receiver publishes the password
-// now we are in a consensus step
-// asserts that the receiver believes their password is correct
-Receiver.only(() => {
-  assume( passwordDigested == digest(password) ); });
-Receiver.publish(password);
-
-// blockchain verifies that password is correct
-require( passwordDigested == digest(password) );
-// blockchain transfers amount to receiver
-transfer(amount).to(Receiver);
-// now we end the consensus step with commit
-commit();
-
-
+    Receiver.only(() => {
+      // receiver provides their password here 
+      const password = declassify(interact.obtainPassword());
+      // asserts that receiver believes their password is correct, they are a honest participant
+      assume( passwordDigested == digest(password) ); });
+    // receiver publishes the password
+    // publish puts us into a consensus step
+    Receiver.publish(password);
+    // blockchain consensus network checks that the password is correct
+    require( passwordDigested == digest(password) );
+    // blockchain transfers amount to receiver
+    transfer(amount).to(Receiver);
+    // we now end the consensus step with a commit
+    commit();
+    // dapp exits
+    exit(); } );
