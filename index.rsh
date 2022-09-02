@@ -1,3 +1,8 @@
+// don't run this program
+// need a versio with zero knowledge proofs
+// to be truly secure
+
+
 // this program involves two participants
 // deployer sends funds and receiver receives funds
 // deployer knows amount they want to send at start
