@@ -1,19 +1,21 @@
+// this program involves two participants
+// deployer sends funds and receiver receives funds
+// deployer knows amount they want to send at start
+// deployer also wants to send the secret password
+// receiver starts out knowing nothing
+// deployer doesnt gain any additional knowlege during execution
+// receiver learns the password during execution
+// deployer transfers funds at beginning
+// receiver receives funds at the end after learning the password
+
 'reach 0.1';
 
-export const main = Reach.App(() => {
-  const A = Participant('Alice', {
-    // Specify Alice's interact interface here
-  });
-  const B = Participant('Bob', {
-    // Specify Bob's interact interface here
-  });
-  init();
-  // The first one to publish deploys the contract
-  A.publish();
-  commit();
-  // The second one to publish always attaches
-  B.publish();
-  commit();
-  // write your program here
-  exit();
-});
+// the amount deployer transfers is represented as a unsigned integer named amount
+// the password is represented as a unsigned integer named password
+// receiver has a function named obtainPassword that returns the password once the receiver knows it
+
+[Participant('Deployer', { amount: UInt, password: UInt }),
+Participant('Receiver', { obtainPassword: Fun([], UInt )}) ],
+
+
+
