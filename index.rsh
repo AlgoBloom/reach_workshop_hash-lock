@@ -14,8 +14,23 @@
 // the password is represented as a unsigned integer named password
 // receiver has a function named obtainPassword that returns the password once the receiver knows it
 
-[Participant('Deployer', { amount: UInt, password: UInt }),
+[Participant('Deployer', { amount: UInt, passwordDigested: UInt }),
 Participant('Receiver', { obtainPassword: Fun([], UInt )}) ],
 
+// deployer publishes a digest of the password and amount and pays amount
+// receiver publishes the password
+// blockchain consensus checks password is correct
+// receiver is paid
+
+// publish puts us into a consensus step
+Deployer.publish(passwordDigested, amount)
+        // deployer pays the amount
+        .pay(amount);
+        // deployer commits this information to the blockchain, ends current concensus step
+commit();
+
+// the receiver publishes the password
+// now we are in a consensus step
+Receiver.publish(password);
 
 
