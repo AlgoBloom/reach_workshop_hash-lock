@@ -22,6 +22,9 @@ Participant('Receiver', { obtainPassword: Fun([], UInt )}) ],
 // blockchain consensus checks password is correct
 // receiver is paid
 
+// receiver cannot know what the deployer's password is
+unknowable(Receiver, Deployer(_password));
+
 // publish puts us into a consensus step
 Deployer.publish(passwordDigested, amount)
         // deployer pays the amount
@@ -31,6 +34,16 @@ commit();
 
 // the receiver publishes the password
 // now we are in a consensus step
+// asserts that the receiver believes their password is correct
+Receiver.only(() => {
+  assume( passwordDigested == digest(password) ); });
 Receiver.publish(password);
+
+// blockchain verifies that password is correct
+require( passwordDigested == digest(password) );
+// blockchain transfers amount to receiver
+transfer(amount).to(Receiver);
+// now we end the consensus step with commit
+commit();
 
 
