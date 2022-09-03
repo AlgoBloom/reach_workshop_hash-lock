@@ -1,1 +1,1 @@
-# reach-workshop-hash-lock
+Hack lock Reach workshop project.
