@@ -1,1 +1,1 @@
-Hack lock Reach workshop project.
+Hash lock Reach workshop project.
